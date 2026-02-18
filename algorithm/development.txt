@@ -1,7 +1,3 @@
 // Let's use this as a simple text log to document our changes
 
-nathan 02.12: working on setting up workflow "A" on my device. Waiting on data sets for the actual machine learning.
-Section B looks like it'll kinda be its own thing. The .md files claude made are a lil fluffy but basically...
-A: Tree detection from image and video (based on coles work with some modifications)
-B: Linking the two video feeds together to keep track of individual trees and their locations
-C/D: Analyzing broken branches and diseases. Needs marked up datasets I'm trying to get from the forestry ppl
+nathan 02.12: working on setting up workflow "1" on my device. Waiting on data sets for the actual machine learning.
