@@ -34,7 +34,7 @@ from tree_detect_sahi import (
 # ─── Configuration ──────────────────────────────────────────────
 # CHANGE THESE for your video
 
-VIDEO_PATH = "notebooks/videos/tree_vid_test1.mp4"   # path to your input video — CHANGE THIS
+VIDEO_PATH = "notebooks/videos/tree_vid_test2.mp4"   # path to your input video — CHANGE THIS
 OUTPUT_DIR = Path("outputs/video_batch")       # where all results get saved
 FRAME_INTERVAL = 10                            # process every Nth frame
                                                # 10 means: from a 30fps video, you get ~3 detections per second

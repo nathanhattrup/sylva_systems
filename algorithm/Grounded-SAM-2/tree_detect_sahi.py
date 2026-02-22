@@ -32,7 +32,7 @@ OUTPUT_DIR = Path("outputs/sahi_tree_detection")  # where results get saved
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)     # create the output folder if it doesn't exist
 
 # Detection thresholds — control sensitivity
-BOX_THRESHOLD = 0.30    # minimum confidence to keep a detection (0-1). lower = more detections but more false positives
+BOX_THRESHOLD = 0.40    # minimum confidence to keep a detection (0-1). lower = more detections but more false positives
 TEXT_THRESHOLD = 0.25   # minimum score for how well the detection matches the text prompt "tree."
 
 # SAHI slicing parameters — control how the image gets chopped up
