@@ -27,7 +27,7 @@ from PIL import Image          # Pillow — image library, GroundingDINO expects
 # CHANGE THESE for your images/setup
 
 IMG_PATH = "notebooks/images/tree_farm_test1.jpg"        # path to the image you want to process — change this!
-TEXT_PROMPT = "tree canopy."                          # what to detect. MUST be lowercase and end with a period
+TEXT_PROMPT = "tree."                          # what to detect. MUST be lowercase and end with a period
 OUTPUT_DIR = Path("outputs/sahi_tree_detection")  # where results get saved
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)     # create the output folder if it doesn't exist
 
