@@ -1,0 +1,10 @@
+venv/
+algorithm/venv/
+algorithm/Grounded-SAM-2/checkpoints/
+algorithm/Grounded-SAM-2/gdino_checkpoints/
+algorithm/Grounded-SAM-2/outputs/
+.cache/
+__pycache__/
+*.pyc
+*.egg-info/
+*.so

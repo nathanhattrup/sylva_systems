@@ -1,3 +1,9 @@
 // Let's use this as a simple text log to document our changes
 
 nathan 02.12: working on setting up workflow "1" on my device. Waiting on data sets for the actual machine learning.
+
+nathan 02.21: got it working on my computer yuhhhhh
+I can proccess images and videos but lowkey kinda crummy detection rn lol
+need to play around with parameters..
+Also need to set up workstream B for downstream proccessing.
+Please read the setup.md for more understanding!!
