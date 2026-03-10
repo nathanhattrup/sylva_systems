@@ -1,8 +1,12 @@
 venv/
 algorithm/venv/
-algorithm/Grounded-SAM-2/checkpoints/
-algorithm/Grounded-SAM-2/gdino_checkpoints/
-algorithm/Grounded-SAM-2/outputs/
+algorithm/outputs/ortho_tiles/
+algorithm/outputs/sylva_analysis/raw_tiles/
+algorithm/outputs/sylva_analysis/annotated_tiles/
+algorithm/outputs/sylva_analysis/composite_annotated.jpg
+algorithm/outputs/sylva_analysis/composite_raw.jpg
+algorithm/ortho.tif
+algorithm/ortho_cropped.tif
 .cache/
 __pycache__/
 *.pyc
