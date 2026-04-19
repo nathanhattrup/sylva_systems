@@ -3,94 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sylva Systems | Aerial Intelligence Report</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Sylva Systems | Aerial Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2 { font-family: 'Lora', serif; }
+        .map-dot { transition: transform 0.2s; cursor: pointer; }
+        .map-dot:hover { transform: scale(2.5); z-index: 50; }
+    </style>
 </head>
-<body>
-    <div class="report-wrapper">
-        <header class="main-header">
-            <div class="brand">
-                <img src="logo.png" alt="Sylva Systems" class="logo-img">
-                <div class="brand-text">
-                    <h1>SYLVA SYSTEMS</h1>
-                    <p>AERIAL CROP INTELLIGENCE</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="health-gauge">
-                    <div class="gauge-label">Overall Health</div>
-                    <div class="gauge-score"><span id="mainScore">0</span><small>%</small></div>
-                </div>
-            </div>
-        </header>
+<body class="bg-[#fdfcf8] text-[#2c332e] min-h-screen">
 
-        <div class="meta-strip">
-            <div class="meta-item"><span>FARM</span><strong id="farmName">Boyd Family Farm</strong></div>
-            <div class="meta-item"><span>SCAN DATE</span><strong id="scanDate">April 19, 2026</strong></div>
-            <div class="meta-item"><span>TOTAL TREES</span><strong id="kpiTotal">0</strong></div>
-            <div class="meta-item"><span>STATUS</span><strong class="status-active">Active Analysis</strong></div>
+    <header class="bg-[#1b2e22] text-white px-8 py-6 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-600 rounded flex items-center justify-center font-bold text-2xl shadow-inner">S</div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">SYLVA SYSTEMS</h1>
+                <p class="text-[10px] tracking-[0.3em] opacity-60 uppercase">Aerial Crop Intelligence</p>
+            </div>
+        </div>
+        <div class="hidden md:block text-right">
+            <div class="text-[10px] opacity-50 uppercase tracking-widest mb-1">Fleet Status</div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span class="text-sm font-semibold">System Online</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-[#253a2b] text-[#8da392] px-8 py-3 flex flex-wrap gap-8 text-[11px] border-b border-white/10 shadow-sm">
+        <div>LOCATION: <span class="text-white font-bold uppercase ml-1" id="meta-location">Main Orchard</span></div>
+        <div>SCAN DATE: <span class="text-white font-bold uppercase ml-1">April 19, 2026</span></div>
+        <div>OPERATOR: <span class="text-white font-bold uppercase ml-1">Autonomous Unit 04</span></div>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-10">
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
+                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Health Index</div>
+                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-health">0%</div>
+            </div>
+            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-red-700 shadow-sm">
+                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Critical Alerts</div>
+                <div class="text-3xl font-bold text-red-700" id="stat-alerts">0</div>
+            </div>
+            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
+                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Total Count</div>
+                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-total">0</div>
+            </div>
+            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
+                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Avg VARI</div>
+                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-vari">0.00</div>
+            </div>
         </div>
 
-        <main class="content">
-            <div class="action-bar">
-                <label for="jsonUpload" class="btn-primary">Upload New Scan (.json)</label>
-                <input type="file" id="jsonUpload" accept=".json" style="display:none">
-                <div class="filter-group">
-                    <button class="chip active" data-filter="all">All Trees</button>
-                    <button class="chip" data-filter="stressed">Stressed</button>
-                    <button class="chip" data-filter="healthy">Healthy</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50 flex justify-between items-center">
+                        <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Spatial Analysis</h3>
+                        <div class="flex gap-2">
+                            <span class="flex items-center gap-1 text-[10px] font-bold opacity-60"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> HEALTHY</span>
+                            <span class="flex items-center gap-1 text-[10px] font-bold opacity-60"><span class="w-2 h-2 bg-red-500 rounded-full"></span> STRESSED</span>
+                        </div>
+                    </div>
+                    <div class="h-[600px] bg-[#eef0e8] relative overflow-hidden" id="map-container">
+                        </div>
                 </div>
             </div>
 
-            <section class="kpi-grid">
-                <div class="kpi-card">
-                    <span class="kpi-label">HEALTHY TREES</span>
-                    <div class="kpi-val" id="kpiHealthy">0%</div>
+            <div class="space-y-6">
+                <div class="bg-white border border-[#e2e2da] p-6 rounded shadow-sm">
+                    <h3 class="font-bold text-[#1b2e22] mb-4 text-sm uppercase tracking-wider">Sync Data</h3>
+                    <label class="block w-full text-center px-4 py-3 bg-[#3d6b4d] hover:bg-[#2d5039] text-white text-sm font-bold rounded cursor-pointer transition-colors">
+                        UPLOAD SCAN JSON
+                        <input type="file" id="dataInput" class="hidden" accept=".json">
+                    </label>
                 </div>
-                <div class="kpi-card danger">
-                    <span class="kpi-label">AT-RISK TREES</span>
-                    <div class="kpi-val" id="kpiStressed">0%</div>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">AVG VARI</span>
-                    <div class="kpi-val" id="kpiVari">0.000</div>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">AVG ExG</span>
-                    <div class="kpi-val" id="kpiExg">0.0</div>
-                </div>
-            </section>
 
-            <div class="data-grid">
-                <div class="panel map-panel">
-                    <div class="panel-header"><h3>Farm Health Map</h3></div>
-                    <div class="map-viewport">
-                        <div id="markers" class="marker-layer"></div>
-                        <div class="map-overlay">ORTHO_REF_0426</div>
+                <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50">
+                        <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Critical Inventory</h3>
                     </div>
-                </div>
-
-                <div class="panel table-panel">
-                    <div class="panel-header"><h3>Tree Inventory</h3></div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Status</th>
-                                    <th>Primary Risk</th>
-                                    <th>VARI</th>
-                                </tr>
-                            </thead>
-                            <tbody id="treeRows"></tbody>
-                        </table>
+                    <div class="max-h-[400px] overflow-y-auto divide-y divide-[#e2e2da]" id="inventory-list">
+                        <div class="p-8 text-center text-xs opacity-40 italic">No data loaded</div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-    <div id="toast" class="toast" aria-hidden="true"></div>
-    <script src="app.js"></script>
+        </div>
+    </main>
+
+    <script>
+        const dataInput = document.getElementById('dataInput');
+
+        dataInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const data = JSON.parse(event.target.result);
+                processTrees(data.trees || data);
+            };
+            reader.readAsText(file);
+        });
+
+        function processTrees(trees) {
+            const container = document.getElementById('map-container');
+            const list = document.getElementById('inventory-list');
+            container.innerHTML = '';
+            list.innerHTML = '';
+
+            // Calculate Bounds for Map
+            const xCoords = trees.map(t => t.geo_x);
+            const yCoords = trees.map(t => t.geo_y);
+            const minX = Math.min(...xCoords);
+            const maxX = Math.max(...xCoords);
+            const minY = Math.min(...yCoords);
+            const maxY = Math.max(...yCoords);
+
+            let stressedCount = 0;
+            let totalVari = 0;
+
+            trees.forEach(tree => {
+                const isStressed = tree.vari < 0.05; // Example threshold
+                if (isStressed) stressedCount++;
+                totalVari += tree.vari;
+
+                // Create Map Dot
+                const dot = document.createElement('div');
+                dot.className = `map-dot absolute w-2 h-2 rounded-full border border-white shadow-sm ${isStressed ? 'bg-red-500' : 'bg-emerald-500'}`;
+
+                // Position relative to container (%)
+                const left = ((tree.geo_x - minX) / (maxX - minX)) * 90 + 5;
+                const top = ((tree.geo_y - minY) / (maxY - minY)) * 90 + 5;
+
+                dot.style.left = `${left}%`;
+                dot.style.top = `${top}%`;
+                dot.title = `Tree #${tree.tree_id} | VARI: ${tree.vari}`;
+                container.appendChild(dot);
+
+                // Add to list if stressed
+                if (isStressed) {
+                    const item = document.createElement('div');
+                    item.className = "p-4 hover:bg-red-50 transition-colors cursor-default flex justify-between items-center";
+                    item.innerHTML = `
+                        <div>
+                            <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
+                            <div class="text-[10px] text-red-600 font-bold uppercase tracking-tighter">Nutrient Deficiency</div>
+                        </div>
+                        <div class="text-xs font-mono font-bold">${tree.vari.toFixed(3)}</div>
+                    `;
+                    list.appendChild(item);
+                }
+            });
+
+            // Update Stats
+            document.getElementById('stat-total').innerText = trees.length.toLocaleString();
+            document.getElementById('stat-health').innerText = Math.round(((trees.length - stressedCount) / trees.length) * 100) + '%';
+            document.getElementById('stat-alerts').innerText = stressedCount;
+            document.getElementById('stat-vari').innerText = (totalVari / trees.length).toFixed(3);
+        }
+    </script>
 </body>
 </html>
