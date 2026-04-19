@@ -190,7 +190,7 @@ document.getElementById('stat-affected-acreage').innerText = Math.floor(stressed
 document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total`;
 document.getElementById('stat-economic-risk').innerText = `$${(stressedCount * 120).toLocaleString()}`;
 document.getElementById('stat-density').innerText = `${Math.round(totalCount / 847)} / acre`;
-document.getElementById('upload-card').classList.add('hidden');
+document.getElementById('upload-section').style.display = 'none';
         }
     </script>
 </body>
