@@ -88,13 +88,13 @@
             </div>
 
             <div class="space-y-6">
-                <div class="bg-white border border-[#e2e2da] p-6 rounded shadow-sm">
-                    <h3 class="font-bold text-[#1b2e22] mb-4 text-sm uppercase tracking-wider">Sync Data</h3>
-                    <label class="block w-full text-center px-4 py-3 bg-[#3d6b4d] hover:bg-[#2d5039] text-white text-sm font-bold rounded cursor-pointer transition-colors">
-                        UPLOAD SCAN JSON
-                        <input type="file" id="dataInput" class="hidden" accept=".json">
-                    </label>
-                </div>
+    <div id="upload-section" class="bg-white border border-[#e2e2da] p-6 rounded shadow-sm">
+        <h3 class="font-bold text-[#1b2e22] mb-4 text-sm uppercase tracking-wider">Sync Data</h3>
+        <label class="block w-full text-center px-4 py-3 bg-[#3d6b4d] hover:bg-[#2d5039] text-white text-sm font-bold rounded cursor-pointer transition-colors">
+            UPLOAD SCAN JSON
+            <input type="file" id="dataInput" class="hidden" accept=".json">
+        </label>
+    </div>
 
                 <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50">
@@ -190,6 +190,7 @@ document.getElementById('stat-affected-acreage').innerText = Math.floor(stressed
 document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total`;
 document.getElementById('stat-economic-risk').innerText = `$${(stressedCount * 120).toLocaleString()}`;
 document.getElementById('stat-density').innerText = `${Math.round(totalCount / 847)} / acre`;
+document.getElementById('upload-card').classList.add('hidden');
         }
     </script>
 </body>
