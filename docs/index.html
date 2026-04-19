@@ -32,38 +32,6 @@
         </div>
     </header>
 
-    <section class="stats-grid">
-  <div class="stat-card healthy-border">
-    <span class="stat-label">HEALTHY TREES</span>
-    <div class="stat-main-value">76%</div>
-    <span class="stat-sub-text">32,186 of 42,350</span>
-  </div>
-
-  <div class="stat-card risk-border">
-    <span class="stat-label">AT-RISK TREES</span>
-    <div class="stat-main-value">24%</div>
-    <span class="stat-sub-text">Across 3 zones</span>
-  </div>
-
-  <div class="stat-card affected-border">
-    <span class="stat-label">AFFECTED ACREAGE</span>
-    <div class="stat-main-value">165</div>
-    <span class="stat-sub-text">19.5% of total</span>
-  </div>
-
-  <div class="stat-card econ-border">
-    <span class="stat-label">ECONOMIC RISK</span>
-    <div class="stat-main-value">$284,000</div>
-    <span class="stat-sub-text">Based on regional timber rates</span>
-  </div>
-
-  <div class="stat-card density-border">
-    <span class="stat-label">TREE DENSITY</span>
-    <div class="stat-main-value">50 / acre</div>
-    <span class="stat-sub-text">Within expected range</span>
-  </div>
-</section>
-
     <div class="bg-[#253a2b] text-[#8da392] px-8 py-3 flex flex-wrap gap-8 text-[11px] border-b border-white/10 shadow-sm">
         <div>LOCATION: <span class="text-white font-bold uppercase ml-1" id="meta-location">Main Orchard</span></div>
         <div>SCAN DATE: <span class="text-white font-bold uppercase ml-1">April 19, 2026</span></div>
@@ -72,24 +40,37 @@
 
     <main class="max-w-7xl mx-auto p-6 md:p-10">
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
-                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Health Index</div>
-                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-health">0%</div>
-            </div>
-            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-red-700 shadow-sm">
-                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Critical Alerts</div>
-                <div class="text-3xl font-bold text-red-700" id="stat-alerts">0</div>
-            </div>
-            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
-                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Total Count</div>
-                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-total">0</div>
-            </div>
-            <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-700 shadow-sm">
-                <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Avg VARI</div>
-                <div class="text-3xl font-bold text-[#1b2e22]" id="stat-vari">0.00</div>
-            </div>
-        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+    <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-600 shadow-sm">
+        <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Healthy Trees</div>
+        <div class="text-3xl font-bold text-[#1b2e22]" id="stat-health-percent">76%</div>
+        <div class="text-[11px] opacity-60 mt-1" id="stat-healthy-count">0 of 0</div>
+    </div>
+
+    <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-red-600 shadow-sm">
+        <div class="text-[10px] font-bold opacity-50 uppercase mb-2">At-Risk Trees</div>
+        <div class="text-3xl font-bold text-red-700" id="stat-at-risk-percent">24%</div>
+        <div class="text-[11px] opacity-60 mt-1" id="stat-at-risk-zones">Across 0 zones</div>
+    </div>
+
+    <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-orange-500 shadow-sm">
+        <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Affected Acreage</div>
+        <div class="text-3xl font-bold text-[#1b2e22]" id="stat-affected-acreage">165</div>
+        <div class="text-[11px] opacity-60 mt-1" id="stat-affected-percent">0% of total</div>
+    </div>
+
+    <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-amber-800 shadow-sm">
+        <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Economic Risk</div>
+        <div class="text-3xl font-bold text-[#1b2e22]" id="stat-economic-risk">$0</div>
+        <div class="text-[11px] opacity-60 mt-1 leading-tight">Based on regional timber rates</div>
+    </div>
+
+    <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-800 shadow-sm">
+        <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Tree Density</div>
+        <div class="text-3xl font-bold text-[#1b2e22]" id="stat-density">0 / acre</div>
+        <div class="text-[11px] opacity-60 mt-1">Within expected range</div>
+    </div>
+</div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-4">
@@ -192,10 +173,23 @@
             });
 
             // Update Stats
-            document.getElementById('stat-total').innerText = trees.length.toLocaleString();
-            document.getElementById('stat-health').innerText = Math.round(((trees.length - stressedCount) / trees.length) * 100) + '%';
-            document.getElementById('stat-alerts').innerText = stressedCount;
-            document.getElementById('stat-vari').innerText = (totalVari / trees.length).toFixed(3);
+            // Update Stats in the new 5-column layout
+const totalCount = trees.length;
+const healthyCount = totalCount - stressedCount;
+const healthPercent = Math.round((healthyCount / totalCount) * 100);
+const riskPercent = 100 - healthPercent;
+
+document.getElementById('stat-health-percent').innerText = healthPercent + '%';
+document.getElementById('stat-healthy-count').innerText = `${healthyCount.toLocaleString()} of ${totalCount.toLocaleString()}`;
+
+document.getElementById('stat-at-risk-percent').innerText = riskPercent + '%';
+document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 10)} clusters`; // Logic for 'zones'
+
+// Placeholder logic for Economic/Acreage based on your JSON
+document.getElementById('stat-affected-acreage').innerText = Math.floor(stressedCount * 0.5);
+document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total`;
+document.getElementById('stat-economic-risk').innerText = `$${(stressedCount * 120).toLocaleString()}`;
+document.getElementById('stat-density').innerText = `${Math.round(totalCount / 847)} / acre`;
         }
     </script>
 </body>

@@ -57,7 +57,7 @@ body {
 
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
     margin-bottom: 40px;
 }
@@ -102,6 +102,30 @@ body {
 .marker-dot.healthy { background: var(--moss); }
 .marker-dot.stressed { background: var(--rust); }
 
+/* Color Variants for the 5-Tab Layout */
+.kpi-card.healthy { border-top-color: #4caf50; }
+.kpi-card.risk { border-top-color: #d32f2f; }
+.kpi-card.affected { border-top-color: #ffa000; }
+.kpi-card.economic { border-top-color: #8d6e63; }
+.kpi-card.density { border-top-color: #388e3c; }
+
+/* Subtext styling for the details like "32,186 of 42,350" */
+.kpi-card .sub-text {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+.kpi-card .label {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
 .toast {
     position: fixed;
     bottom: 20px;
@@ -114,23 +138,3 @@ body {
     transition: 0.3s;
 }
 .toast[aria-hidden="false"] { opacity: 1; }
-
-/* --- Add to the very end of your file --- */
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 15px;
-  padding: 20px 40px;
-  background-color: #f8f9f8;
-}
-
-.stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  border-top: 4px solid #ccc;
-}
