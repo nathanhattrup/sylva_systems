@@ -1,98 +1,96 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sylva Systems • Inspection Report</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sylva Systems | Aerial Intelligence Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="report-container">
-    <header class="report-header">
-      <div class="header-main">
-        <div class="brand">
-          <span class="logo">🌲</span>
-          <div>
-            <div class="brand-name">SYLVA SYSTEMS</div>
-            <div class="brand-sub">AERIAL CROP INTELLIGENCE</div>
-          </div>
-        </div>
-        <div class="report-meta">
-          <div class="meta-box"><span>FARM</span><strong id="farmName">Boyd Family Farm</strong></div>
-          <div class="meta-box"><span>SCAN DATE</span><strong id="scanDate">—</strong></div>
-          <div class="meta-box"><span>TOTAL TREES</span><strong id="kpiTotal">—</strong></div>
-        </div>
-        <div class="health-score-gauge">
-          <div class="gauge-label">Health Score</div>
-          <div class="gauge-value" id="mainScore">0</div>
-        </div>
-      </div>
-    </header>
+    <div class="report-wrapper">
+        <header class="main-header">
+            <div class="brand">
+                <img src="logo.png" alt="Sylva Systems" class="logo-img">
+                <div class="brand-text">
+                    <h1>SYLVA SYSTEMS</h1>
+                    <p>AERIAL CROP INTELLIGENCE</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="health-gauge">
+                    <div class="gauge-label">Overall Health</div>
+                    <div class="gauge-score"><span id="mainScore">0</span><small>%</small></div>
+                </div>
+            </div>
+        </header>
 
-    <main class="content">
-      <section class="toolbar">
-        <div class="upload-area">
-          <label for="jsonUpload" class="btn-upload">Upload Scan Data (.json)</label>
-          <input type="file" id="jsonUpload" accept=".json" style="display:none" />
-        </div>
-        <div class="filters">
-          <button class="chip active" data-filter="all">All Trees</button>
-          <button class="chip" data-filter="stressed">Stressed</button>
-          <button class="chip" data-filter="moderate">Moderate</button>
-        </div>
-      </section>
-
-      <section class="kpi-ribbon">
-        <div class="stat-card">
-          <div class="label">Healthy Trees</div>
-          <div class="val" id="kpiHealthy">0%</div>
-        </div>
-        <div class="stat-card danger">
-          <div class="label">At-Risk Trees</div>
-          <div class="val" id="kpiStressed">0%</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Avg VARI</div>
-          <div class="val" id="kpiVari">0.00</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Avg ExG</div>
-          <div class="val" id="kpiExg">0.0</div>
-        </div>
-      </section>
-
-      <div class="main-grid">
-        <div class="panel map-panel">
-          <h3>Farm Health Map</h3>
-          <div class="map-container">
-            <div id="markers" class="markers"></div>
-            <div class="map-bg"></div>
-          </div>
+        <div class="meta-strip">
+            <div class="meta-item"><span>FARM</span><strong id="farmName">Boyd Family Farm</strong></div>
+            <div class="meta-item"><span>SCAN DATE</span><strong id="scanDate">April 19, 2026</strong></div>
+            <div class="meta-item"><span>TOTAL TREES</span><strong id="kpiTotal">0</strong></div>
+            <div class="meta-item"><span>STATUS</span><strong class="status-active">Active Analysis</strong></div>
         </div>
 
-        <div class="panel list-panel">
-          <h3>Tree Inventory</h3>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Status</th>
-                  <th>Primary Risk</th>
-                  <th>VARI</th>
-                </tr>
-              </thead>
-              <tbody id="treeRows"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </main>
+        <main class="content">
+            <div class="action-bar">
+                <label for="jsonUpload" class="btn-primary">Upload New Scan (.json)</label>
+                <input type="file" id="jsonUpload" accept=".json" style="display:none">
+                <div class="filter-group">
+                    <button class="chip active" data-filter="all">All Trees</button>
+                    <button class="chip" data-filter="stressed">Stressed</button>
+                    <button class="chip" data-filter="healthy">Healthy</button>
+                </div>
+            </div>
 
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">HEALTHY TREES</span>
+                    <div class="kpi-val" id="kpiHealthy">0%</div>
+                </div>
+                <div class="kpi-card danger">
+                    <span class="kpi-label">AT-RISK TREES</span>
+                    <div class="kpi-val" id="kpiStressed">0%</div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">AVG VARI</span>
+                    <div class="kpi-val" id="kpiVari">0.000</div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">AVG ExG</span>
+                    <div class="kpi-val" id="kpiExg">0.0</div>
+                </div>
+            </section>
+
+            <div class="data-grid">
+                <div class="panel map-panel">
+                    <div class="panel-header"><h3>Farm Health Map</h3></div>
+                    <div class="map-viewport">
+                        <div id="markers" class="marker-layer"></div>
+                        <div class="map-overlay">ORTHO_REF_0426</div>
+                    </div>
+                </div>
+
+                <div class="panel table-panel">
+                    <div class="panel-header"><h3>Tree Inventory</h3></div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Status</th>
+                                    <th>Primary Risk</th>
+                                    <th>VARI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="treeRows"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
     <div id="toast" class="toast" aria-hidden="true"></div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
