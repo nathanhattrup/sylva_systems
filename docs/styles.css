@@ -114,3 +114,23 @@ body {
     transition: 0.3s;
 }
 .toast[aria-hidden="false"] { opacity: 1; }
+
+/* --- Add to the very end of your file --- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  padding: 20px 40px;
+  background-color: #f8f9f8;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  border-top: 4px solid #ccc;
+}
