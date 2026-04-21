@@ -72,7 +72,7 @@
     <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-red-600 shadow-sm">
         <div class="text-[10px] font-bold opacity-50 uppercase mb-2">At-Risk Trees</div>
         <div class="text-3xl font-bold text-red-700" id="stat-at-risk-percent">0%</div>
-        <div class="text-[11px] opacity-60 mt-1" id="stat-at-risk-zones">Across 0 zones</div>
+        <div class="text-[11px] opacity-60 mt-1" id="stat-at-risk-zones">0 high / 0 moderate</div>
     </div>
 
     <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-orange-500 shadow-sm">
@@ -158,6 +158,7 @@
             return;
         }
 
+        // Setup Header Metadata
         const loc = document.getElementById('input-location').value;
         const date = document.getElementById('input-date').value;
         const oper = document.getElementById('input-operator').value;
@@ -199,6 +200,8 @@
         const markers = L.featureGroup();
         const listFragment = document.createDocumentFragment();
 
+        const markerMap = {};
+
         trees.forEach(tree => {
             const isHighRisk = tree.vari < 0.015;
             const isModerateRisk = tree.vari >= 0.015 && tree.vari < 0.045;
@@ -206,18 +209,19 @@
             if (isHighRisk) highRiskCount++;
             if (isModerateRisk) moderateRiskCount++;
 
-            let plotColor = "#10b981"; // Healthy
-            if (isHighRisk) plotColor = "#ef4444"; // Red
-            if (isModerateRisk) plotColor = "#f59e0b"; // Orange
+            let plotColor = "#10b981";
+            if (isHighRisk) plotColor = "#ef4444";
+            if (isModerateRisk) plotColor = "#f59e0b";
 
             const p = proj4(utm11n, wgs84, [tree.geo_x, tree.geo_y]);
             const marker = L.circleMarker([p[1], p[0]], {
-                radius: 2,
+                radius: 4,
                 fillColor: plotColor,
                 color: "#ffffff",
-                weight: 0.5,
+                weight: 1,
                 opacity: 1,
-                fillOpacity: 0.9
+                fillOpacity: 0.9,
+                treeId: tree.tree_id
             });
 
             marker.bindTooltip(`
@@ -229,11 +233,33 @@
                 </div>
             `);
 
+            marker.on('click', function() {
+                const sidebarItem = document.getElementById(`inventory-item-${tree.tree_id}`);
+                if (sidebarItem) {
+                    sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Visual feedback in sidebar
+                    sidebarItem.classList.add('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500');
+                    setTimeout(() => sidebarItem.classList.remove('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500'), 2000);
+                }
+            });
+
+            markerMap[tree.tree_id] = marker;
             markers.addLayer(marker);
 
             if (isHighRisk || isModerateRisk) {
                 const item = document.createElement('div');
-                item.className = `p-4 hover:bg-gray-50 transition-colors flex justify-between items-center border-l-4 ${isHighRisk ? 'border-red-500' : 'border-orange-500'}`;
+                item.id = `inventory-item-${tree.tree_id}`;
+                item.className = `p-4 hover:bg-gray-50 transition-all cursor-pointer flex justify-between items-center border-l-4 ${isHighRisk ? 'border-red-500' : 'border-orange-500'}`;
+
+                item.onclick = () => {
+                    const m = markerMap[tree.tree_id];
+                    map.setView(m.getLatLng(), 20);
+                    m.openTooltip();
+
+                    m.setRadius(12);
+                    setTimeout(() => m.setRadius(4), 1000);
+                };
+
                 item.innerHTML = `
                     <div>
                         <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
@@ -251,6 +277,7 @@
         markers.addTo(map);
         map.fitBounds(markers.getBounds());
 
+        // Legend and Stats UI
         const legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'bg-white/90 p-3 rounded shadow-md border border-gray-200 text-[10px] font-bold uppercase tracking-wider space-y-2');
