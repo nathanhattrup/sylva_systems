@@ -34,6 +34,7 @@
 
     <div class="bg-[#253a2b] text-[#8da392] px-8 py-3 flex flex-wrap gap-8 text-[11px] border-b border-white/10 shadow-sm">
     <div>LOCATION: <span class="text-white font-bold uppercase ml-1" id="display-location">Pending</span></div>
+        <div>ACRES SCANNED: <span class="text-white font-bold uppercase ml-1" id="display-acres">Pending</span></div>
     <div>SCAN DATE: <span class="text-white font-bold uppercase ml-1" id="display-date">Pending</span></div>
     <div>OPERATOR: <span class="text-white font-bold uppercase ml-1" id="display-operator">Pending</span></div>
 </div>
@@ -127,79 +128,78 @@
         });
 
         function processTrees(trees) {
-            const loc = document.getElementById('input-location').value;
+    const loc = document.getElementById('input-location').value;
     const date = document.getElementById('input-date').value;
     const oper = document.getElementById('input-operator').value;
 
     if(loc) document.getElementById('display-location').innerText = loc;
     if(date) document.getElementById('display-date').innerText = date;
     if(oper) document.getElementById('display-operator').innerText = oper;
-            const container = document.getElementById('map-container');
-            const list = document.getElementById('inventory-list');
-            container.innerHTML = '';
-            list.innerHTML = '';
 
-            // Calculate Bounds for Map
-            const xCoords = trees.map(t => t.geo_x);
-            const yCoords = trees.map(t => t.geo_y);
-            const minX = Math.min(...xCoords);
-            const maxX = Math.max(...xCoords);
-            const minY = Math.min(...yCoords);
-            const maxY = Math.max(...yCoords);
+    const container = document.getElementById('map-container');
+    const list = document.getElementById('inventory-list');
+    container.innerHTML = '';
+    list.innerHTML = '';
 
-            let stressedCount = 0;
-            let totalVari = 0;
+    const xCoords = trees.map(t => t.geo_x);
+    const yCoords = trees.map(t => t.geo_y);
+    const minX = Math.min(...xCoords);
+    const maxX = Math.max(...xCoords);
+    const minY = Math.min(...yCoords);
+    const maxY = Math.max(...yCoords);
 
-            trees.forEach(tree => {
-                const isStressed = tree.vari < 0.05; // Example threshold
-                if (isStressed) stressedCount++;
-                totalVari += tree.vari;
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const totalAcres = (width * height) / 4046.86; // 4046.86 sq meters in an acre
+    document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
 
-                // Create Map Dot
-                const dot = document.createElement('div');
-                dot.className = `map-dot absolute w-2 h-2 rounded-full border border-white shadow-sm ${isStressed ? 'bg-red-500' : 'bg-emerald-500'}`;
+    let stressedCount = 0;
+    let totalVari = 0;
 
-                // Position relative to container (%)
-                const left = ((tree.geo_x - minX) / (maxX - minX)) * 90 + 5;
-                const top = ((tree.geo_y - minY) / (maxY - minY)) * 90 + 5;
+    trees.forEach(tree => {
+        const isStressed = tree.vari < 0.05;
+        if (isStressed) stressedCount++;
+        totalVari += tree.vari;
 
-                dot.style.left = `${left}%`;
-                dot.style.top = `${top}%`;
-                dot.title = `Tree #${tree.tree_id} | VARI: ${tree.vari}`;
-                container.appendChild(dot);
+        const dot = document.createElement('div');
+        dot.className = `map-dot absolute w-2 h-2 rounded-full border border-white shadow-sm ${isStressed ? 'bg-red-500' : 'bg-emerald-500'}`;
 
-                // Add to list if stressed
-                if (isStressed) {
-                    const item = document.createElement('div');
-                    item.className = "p-4 hover:bg-red-50 transition-colors cursor-default flex justify-between items-center";
-                    item.innerHTML = `
-                        <div>
-                            <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
-                            <div class="text-[10px] text-red-600 font-bold uppercase tracking-tighter">Nutrient Deficiency</div>
-                        </div>
-                        <div class="text-xs font-mono font-bold">${tree.vari.toFixed(3)}</div>
-                    `;
-                    list.appendChild(item);
-                }
-            });
+        const left = ((tree.geo_x - minX) / (maxX - minX)) * 90 + 5;
+        const top = ((tree.geo_y - minY) / (maxY - minY)) * 90 + 5;
 
-            // Update Stats
-            // Update Stats in the new 5-column layout
-const totalCount = trees.length;
-const healthyCount = totalCount - stressedCount;
-const healthPercent = Math.round((healthyCount / totalCount) * 100);
-const riskPercent = 100 - healthPercent;
+        dot.style.left = `${left}%`;
+        dot.style.top = `${top}%`;
+        container.appendChild(dot);
 
-document.getElementById('stat-health-percent').innerText = healthPercent + '%';
-document.getElementById('stat-healthy-count').innerText = `${healthyCount.toLocaleString()} of ${totalCount.toLocaleString()}`;
+        if (isStressed) {
+            const item = document.createElement('div');
+            item.className = "p-4 hover:bg-red-50 transition-colors flex justify-between items-center";
+            item.innerHTML = `
+                <div>
+                    <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
+                    <div class="text-[10px] text-red-600 font-bold uppercase tracking-tighter">Nutrient Deficiency</div>
+                </div>
+                <div class="text-xs font-mono font-bold">${tree.vari.toFixed(3)}</div>
+            `;
+            list.appendChild(item);
+        }
+    });
 
-document.getElementById('stat-at-risk-percent').innerText = riskPercent + '%';
-document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 10)} clusters`; // Logic for 'zones'
+    const totalCount = trees.length;
+    const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
 
-document.getElementById('stat-affected-acreage').innerText = Math.floor(stressedCount * 0.5);
-document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total`;
-document.getElementById('stat-density').innerText = `${Math.round(totalCount / 847)} / acre`;
-document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('stat-health-percent').innerText = healthPercent + '%';
+    document.getElementById('stat-healthy-count').innerText = `${(totalCount - stressedCount).toLocaleString()} of ${totalCount.toLocaleString()}`;
+    document.getElementById('stat-at-risk-percent').innerText = (100 - healthPercent) + '%';
+    document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 10)} clusters`;
+
+    const affectedAcres = totalAcres * (stressedCount / totalCount);
+    document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
+    document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total area`;
+
+    document.getElementById('stat-density').innerText = `${Math.round(totalCount / totalAcres)} / acre`;
+
+    document.getElementById('upload-section').style.display = 'none';
         }
     </script>
 </body>
