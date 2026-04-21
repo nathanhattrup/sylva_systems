@@ -257,8 +257,7 @@
         const healthScore = healthPercent;
         document.getElementById('stat-health-score').innerText = healthScore;
         const rotation = -135 + (healthScore * 1.8);
-        const gaugeFill = document.getElementById('health-gauge-fill');
-        gaugeFill.style.transform = `rotate(${rotation}deg) scale(1)`;
+        document.getElementById('health-gauge-fill').style.transform = `rotate(${rotation}deg)`;
 
         const badge = document.getElementById('risk-level-badge');
         if (healthScore >= 80) {
