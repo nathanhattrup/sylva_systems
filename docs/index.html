@@ -141,10 +141,11 @@
         reader.onload = function(event) {
             try {
                 const data = JSON.parse(event.target.result);
-                processTrees(data.trees || data);
+                // Ensure we pass the array of trees correctly
+                processTrees(data.trees || (Array.isArray(data) ? data : []));
             } catch (err) {
                 console.error("JSON Error:", err);
-                alert("Error loading file. Please ensure it is a valid JSON.");
+                alert("Error loading file. Please ensure it is a valid JSON scan file.");
             }
         };
         reader.readAsText(file);
@@ -153,6 +154,10 @@
     let map;
 
     function processTrees(trees) {
+        if (!trees || trees.length === 0) {
+            alert("No tree data found in this file.");
+            return;
+        }
 
         const loc = document.getElementById('input-location').value;
         const date = document.getElementById('input-date').value;
@@ -185,7 +190,7 @@
         const minX = Math.min(...xCoords);
         const maxX = Math.max(...xCoords);
         const minY = Math.min(...yCoords);
-        const maxY = Math.maxY = Math.max(...yCoords);
+        const maxY = Math.max(...yCoords);
 
         const totalAcres = ((maxX - minX) * (maxY - minY)) / 4046.86;
         document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
@@ -214,7 +219,6 @@
             marker.bindTooltip(`
                 <div class="font-sans p-1">
                     <div class="font-bold text-emerald-800">Tree #${tree.tree_id}</div>
-                    <div class="text-[10px] opacity-80 font-mono">${tLat.toFixed(6)}, ${tLng.toFixed(6)}</div>
                     <div class="mt-1 border-t border-gray-100 pt-1 font-mono text-xs">
                         VARI: <span class="${isStressed ? 'text-red-600' : 'text-emerald-600'}">${tree.vari.toFixed(3)}</span>
                     </div>
@@ -256,10 +260,13 @@
 
         const healthScore = healthPercent;
         document.getElementById('stat-health-score').innerText = healthScore;
-        const rotation = -135 + (healthScore * 1.8);
-        document.getElementById('health-gauge-fill').style.transform = `rotate(${rotation}deg)`;
 
+        const rotation = -135 + (healthScore * 1.8);
+        const gaugeFill = document.getElementById('health-gauge-fill');
         const badge = document.getElementById('risk-level-badge');
+
+        gaugeFill.style.transform = `rotate(${rotation}deg)`;
+
         if (healthScore >= 80) {
             badge.innerText = "Optimal";
             badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider";
@@ -273,6 +280,8 @@
             badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-wider";
             gaugeFill.style.borderColor = "#ef4444";
         }
+
+        // Maintain the gauge's semi-circle look
         gaugeFill.style.borderBottomColor = "transparent";
         gaugeFill.style.borderLeftColor = "transparent";
 
