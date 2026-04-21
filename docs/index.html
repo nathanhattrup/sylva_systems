@@ -27,12 +27,12 @@
             </div>
         </div>
         <div class="hidden md:block text-right">
-            <div class="text-[10px] opacity-50 uppercase tracking-widest mb-1">Fleet Status</div>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                <span class="text-sm font-semibold">System Online</span>
-            </div>
-        </div>
+    <div class="text-[10px] opacity-50 uppercase tracking-widest mb-1">Inspection Report</div>
+    <div class="flex items-center justify-end gap-2">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+        <span id="display-report-num" class="text-sm font-semibold text-white">SYL-PENDING</span>
+    </div>
+</div>
     </header>
 
     <div class="bg-[#253a2b] text-[#8da392] px-8 py-3 flex flex-wrap gap-8 text-[11px] border-b border-white/10 shadow-sm">
@@ -88,7 +88,7 @@
     <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Report Metadata</h3>
 
     <div class="space-y-2">
-        <input type="text" id="input-location" placeholder="Farm Location" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
+        <input type="text" id="input-location" placeholder="Farm Name" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
         <input type="text" id="input-date" placeholder="Scan Date (e.g. April 19, 2026)" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
         <input type="text" id="input-operator" placeholder="Operator Name" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
     </div>
@@ -130,6 +130,12 @@
         let map;
 
         function processTrees(trees) {
+            const now = new Date();
+    const dateStr = now.toISOString().slice(0,10).replace(/-/g, '');
+    const randomID = Math.floor(1000 + Math.random() * 9000);
+    const reportNum = `SYL-${dateStr}-${randomID}`;
+
+    document.getElementById('display-report-num').innerText = reportNum;
 
             const loc = document.getElementById('input-location').value;
             const date = document.getElementById('input-date').value;
