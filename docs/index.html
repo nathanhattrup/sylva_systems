@@ -121,10 +121,8 @@
 dataInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
-
     reader.onload = function(event) {
         const data = JSON.parse(event.target.result);
-        // Handle both the inventory format and the summary format if accidentally uploaded
         processTrees(data.trees || data);
     };
     reader.readAsText(file);
@@ -133,11 +131,9 @@ dataInput.addEventListener('change', function(e) {
         let map;
 
 function processTrees(trees) {
-
     const loc = document.getElementById('input-location').value;
     const date = document.getElementById('input-date').value;
     const oper = document.getElementById('input-operator').value;
-
     if(loc) document.getElementById('display-location').innerText = loc;
     if(date) document.getElementById('display-date').innerText = date;
     if(oper) document.getElementById('display-operator').innerText = oper;
@@ -152,7 +148,8 @@ function processTrees(trees) {
         attribution: 'Tiles &copy; Esri'
     }).addTo(map);
 
-    const utmZone = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
+    const utm11n = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
+    const wgs84 = "WGS84";
 
     const xCoords = trees.map(t => t.geo_x);
     const yCoords = trees.map(t => t.geo_y);
@@ -165,18 +162,15 @@ function processTrees(trees) {
     document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
 
     let stressedCount = 0;
-    const markers = [];
+    const markers = L.featureGroup();
 
     trees.forEach(tree => {
         const isStressed = tree.vari < 0.05;
         if (isStressed) stressedCount++;
 
-        // CONVERSION: Map meters to GPS.
-        // If it's still desert, swap [tree.geo_x, tree.geo_y] to [tree.geo_y, tree.geo_x]
-        const coords = proj4(utmZone, "WGS84", [tree.geo_x, tree.geo_y]);
-        const latLng = [coords[1], coords[0]];
+        const p = proj4(utm11n, wgs84, [tree.geo_x, tree.geo_y]);
 
-        const marker = L.circleMarker(latLng, {
+        const marker = L.circleMarker([p[1], p[0]], {
             radius: 2,
             fillColor: isStressed ? "#ef4444" : "#10b981",
             color: "#ffffff",
@@ -186,7 +180,7 @@ function processTrees(trees) {
         });
 
         marker.bindTooltip(`ID: #${tree.tree_id} | VARI: ${tree.vari.toFixed(3)}`);
-        markers.push(marker);
+        markers.addLayer(marker);
 
         if (isStressed) {
             const item = document.createElement('div');
@@ -202,10 +196,8 @@ function processTrees(trees) {
         }
     });
 
-    if (markers.length > 0) {
-        const group = L.featureGroup(markers).addTo(map);
-        map.fitBounds(group.getBounds());
-    }
+    markers.addTo(map);
+    map.fitBounds(markers.getBounds());
 
     const totalCount = trees.length;
     const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
