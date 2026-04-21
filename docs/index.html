@@ -72,17 +72,16 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-4">
-                <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50 flex justify-between items-center">
-                        <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Spatial Analysis</h3>
-                        <div class="flex gap-2">
-                            <span class="flex items-center gap-1 text-[10px] font-bold opacity-60"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> HEALTHY</span>
-                            <span class="flex items-center gap-1 text-[10px] font-bold opacity-60"><span class="w-2 h-2 bg-red-500 rounded-full"></span> STRESSED</span>
-                        </div>
-                    </div>
-                    <div id="map-container" class="h-[600px] bg-[#eef0e8] relative"></div>
-                </div>
+    <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden relative">
+        <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50 flex justify-between items-center">
+            <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Spatial Analysis</h3>
+            <div id="coords-display" class="text-[10px] font-mono bg-[#1b2e22] text-emerald-400 px-2 py-1 rounded shadow-inner">
+                LAT: 0.00000 | LNG: 0.00000
             </div>
+        </div>
+        <div id="map-container" class="h-[600px] bg-[#eef0e8] relative"></div>
+    </div>
+</div>
 
             <div class="space-y-6">
     <div id="upload-section" class="bg-white border border-[#e2e2da] p-6 rounded shadow-sm space-y-4">
@@ -143,6 +142,10 @@ function processTrees(trees) {
 
     if (map) { map.remove(); }
     map = L.map('map-container');
+    map.on('mousemove', function(e) {
+    const lat = e.latlng.lat.toFixed(5);
+    const lng = e.latlng.lng.toFixed(5);
+    document.getElementById('coords-display').innerText = `LAT: ${lat} | LNG: ${lng}`;
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri'
@@ -179,7 +182,16 @@ function processTrees(trees) {
             fillOpacity: 0.9
         });
 
-        marker.bindTooltip(`ID: #${tree.tree_id} | VARI: ${tree.vari.toFixed(3)}`);
+        marker.bindTooltip(`
+            <div class="font-sans p-1">
+                <div class="font-bold text-emerald-800">Tree #${tree.tree_id}</div>
+                <div class="text-[10px] opacity-80 font-mono">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                <div class="mt-1 border-t border-gray-100 pt-1 font-mono text-xs">
+                    VARI: <span class="${isStressed ? 'text-red-600' : 'text-emerald-600'}">${tree.vari.toFixed(3)}</span>
+                </div>
+            </div>
+        `);
+
         markers.addLayer(marker);
 
         if (isStressed) {
