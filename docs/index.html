@@ -200,8 +200,8 @@
         const listFragment = document.createDocumentFragment();
 
         trees.forEach(tree => {
-            const isHighRisk = tree.vari < 0.03;
-            const isModerateRisk = tree.vari >= 0.03 && tree.vari < 0.08;
+            const isHighRisk = tree.vari < 0.015;
+            const isModerateRisk = tree.vari >= 0.015 && tree.vari < 0.045;
 
             if (isHighRisk) highRiskCount++;
             if (isModerateRisk) moderateRiskCount++;
