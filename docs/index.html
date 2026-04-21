@@ -117,115 +117,123 @@
     <script>
         const dataInput = document.getElementById('dataInput');
 
-dataInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const data = JSON.parse(event.target.result);
-        processTrees(data.trees || data);
-    };
-    reader.readAsText(file);
-});
+        dataInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const data = JSON.parse(event.target.result);
+                processTrees(data.trees || data);
+            };
+            reader.readAsText(file);
+        });
 
         let map;
 
-function processTrees(trees) {
-    const loc = document.getElementById('input-location').value;
-    const date = document.getElementById('input-date').value;
-    const oper = document.getElementById('input-operator').value;
-    if(loc) document.getElementById('display-location').innerText = loc;
-    if(date) document.getElementById('display-date').innerText = date;
-    if(oper) document.getElementById('display-operator').innerText = oper;
+        function processTrees(trees) {
 
-    const list = document.getElementById('inventory-list');
-    list.innerHTML = '';
+            const loc = document.getElementById('input-location').value;
+            const date = document.getElementById('input-date').value;
+            const oper = document.getElementById('input-operator').value;
+            if(loc) document.getElementById('display-location').innerText = loc;
+            if(date) document.getElementById('display-date').innerText = date;
+            if(oper) document.getElementById('display-operator').innerText = oper;
 
-    if (map) { map.remove(); }
-    map = L.map('map-container');
-    map.on('mousemove', function(e) {
-    const lat = e.latlng.lat.toFixed(5);
-    const lng = e.latlng.lng.toFixed(5);
-    document.getElementById('coords-display').innerText = `LAT: ${lat} | LNG: ${lng}`;
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = '';
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri'
-    }).addTo(map);
+            if (map) { map.remove(); }
+            map = L.map('map-container');
 
-    const utm11n = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
-    const wgs84 = "WGS84";
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
+            }).addTo(map);
 
-    const xCoords = trees.map(t => t.geo_x);
-    const yCoords = trees.map(t => t.geo_y);
-    const minX = Math.min(...xCoords);
-    const maxX = Math.max(...xCoords);
-    const minY = Math.min(...yCoords);
-    const maxY = Math.max(...yCoords);
+            map.on('mousemove', function(e) {
+                const lat = e.latlng.lat.toFixed(5);
+                const lng = e.latlng.lng.toFixed(5);
+                document.getElementById('coords-display').innerText = `LAT: ${lat} | LNG: ${lng}`;
+            });
 
-    const totalAcres = ((maxX - minX) * (maxY - minY)) / 4046.86;
-    document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
+            const utm11n = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
+            const wgs84 = "WGS84";
 
-    let stressedCount = 0;
-    const markers = L.featureGroup();
+            const xCoords = trees.map(t => t.geo_x);
+            const yCoords = trees.map(t => t.geo_y);
+            const minX = Math.min(...xCoords);
+            const maxX = Math.max(...xCoords);
+            const minY = Math.min(...yCoords);
+            const maxY = Math.max(...yCoords);
 
-    trees.forEach(tree => {
-        const isStressed = tree.vari < 0.05;
-        if (isStressed) stressedCount++;
+            const totalAcres = ((maxX - minX) * (maxY - minY)) / 4046.86;
+            document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
 
-        const p = proj4(utm11n, wgs84, [tree.geo_x, tree.geo_y]);
+            let stressedCount = 0;
+            const markers = L.featureGroup();
+            const listFragment = document.createDocumentFragment(); // Performance boost for sidebar
 
-        const marker = L.circleMarker([p[1], p[0]], {
-            radius: 2,
-            fillColor: isStressed ? "#ef4444" : "#10b981",
-            color: "#ffffff",
-            weight: 0.5,
-            opacity: 1,
-            fillOpacity: 0.9
-        });
+            trees.forEach(tree => {
+                const isStressed = tree.vari < 0.05;
+                if (isStressed) stressedCount++;
 
-        marker.bindTooltip(`
-            <div class="font-sans p-1">
-                <div class="font-bold text-emerald-800">Tree #${tree.tree_id}</div>
-                <div class="text-[10px] opacity-80 font-mono">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
-                <div class="mt-1 border-t border-gray-100 pt-1 font-mono text-xs">
-                    VARI: <span class="${isStressed ? 'text-red-600' : 'text-emerald-600'}">${tree.vari.toFixed(3)}</span>
-                </div>
-            </div>
-        `);
+                const p = proj4(utm11n, wgs84, [tree.geo_x, tree.geo_y]);
+                const tLat = p[1];
+                const tLng = p[0];
 
-        markers.addLayer(marker);
+                const marker = L.circleMarker([tLat, tLng], {
+                    radius: 2,
+                    fillColor: isStressed ? "#ef4444" : "#10b981",
+                    color: "#ffffff",
+                    weight: 0.5,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                });
 
-        if (isStressed) {
-            const item = document.createElement('div');
-            item.className = "p-4 hover:bg-red-50 transition-colors flex justify-between items-center";
-            item.innerHTML = `
-                <div>
-                    <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
-                    <div class="text-[10px] text-red-600 font-bold uppercase tracking-tighter">Nutrient Deficiency</div>
-                </div>
-                <div class="text-xs font-mono font-bold">${tree.vari.toFixed(3)}</div>
-            `;
-            list.appendChild(item);
+                marker.bindTooltip(`
+                    <div class="font-sans p-1">
+                        <div class="font-bold text-emerald-800">Tree #${tree.tree_id}</div>
+                        <div class="text-[10px] opacity-80 font-mono">${tLat.toFixed(6)}, ${tLng.toFixed(6)}</div>
+                        <div class="mt-1 border-t border-gray-100 pt-1 font-mono text-xs">
+                            VARI: <span class="${isStressed ? 'text-red-600' : 'text-emerald-600'}">${tree.vari.toFixed(3)}</span>
+                        </div>
+                    </div>
+                `);
+
+                markers.addLayer(marker);
+
+                if (isStressed) {
+                    const item = document.createElement('div');
+                    item.className = "p-4 hover:bg-red-50 transition-colors flex justify-between items-center";
+                    item.innerHTML = `
+                        <div>
+                            <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
+                            <div class="text-[10px] text-red-600 font-bold uppercase tracking-tighter">Nutrient Deficiency</div>
+                        </div>
+                        <div class="text-xs font-mono font-bold">${tree.vari.toFixed(3)}</div>
+                    `;
+                    listFragment.appendChild(item);
+                }
+            });
+
+            // 6. Finalize View
+            list.appendChild(listFragment);
+            markers.addTo(map);
+            map.fitBounds(markers.getBounds());
+
+            const totalCount = trees.length;
+            const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
+
+            document.getElementById('stat-health-percent').innerText = healthPercent + '%';
+            document.getElementById('stat-healthy-count').innerText = `${(totalCount - stressedCount).toLocaleString()} of ${totalCount.toLocaleString()}`;
+            document.getElementById('stat-at-risk-percent').innerText = (100 - healthPercent) + '%';
+            document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 12)} clusters`;
+
+            const affectedAcres = totalAcres * (stressedCount / totalCount);
+            document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
+            document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total area`;
+            document.getElementById('stat-density').innerText = `${Math.round(totalCount / totalAcres)} / acre`;
+
+            document.getElementById('upload-section').style.display = 'none';
         }
-    });
-
-    markers.addTo(map);
-    map.fitBounds(markers.getBounds());
-
-    const totalCount = trees.length;
-    const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
-
-    document.getElementById('stat-health-percent').innerText = healthPercent + '%';
-    document.getElementById('stat-healthy-count').innerText = `${(totalCount - stressedCount).toLocaleString()} of ${totalCount.toLocaleString()}`;
-    document.getElementById('stat-at-risk-percent').innerText = (100 - healthPercent) + '%';
-    document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 12)} clusters`;
-
-    const affectedAcres = totalAcres * (stressedCount / totalCount);
-    document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
-    document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total area`;
-    document.getElementById('stat-density').innerText = `${Math.round(totalCount / totalAcres)} / acre`;
-
-    document.getElementById('upload-section').style.display = 'none';
-}
     </script>
 </body>
 </html>
