@@ -6,6 +6,9 @@
     <title>Sylva Systems | Aerial Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2 { font-family: 'Lora', serif; }
@@ -77,8 +80,7 @@
                             <span class="flex items-center gap-1 text-[10px] font-bold opacity-60"><span class="w-2 h-2 bg-red-500 rounded-full"></span> STRESSED</span>
                         </div>
                     </div>
-                    <div class="h-[600px] bg-[#eef0e8] relative overflow-hidden" id="map-container">
-                        </div>
+                    <div id="map-container" class="h-[600px] bg-[#eef0e8] relative"></div>
                 </div>
             </div>
 
@@ -127,7 +129,10 @@
             reader.readAsText(file);
         });
 
-        function processTrees(trees) {
+        let map;
+
+function processTrees(trees) {
+
     const loc = document.getElementById('input-location').value;
     const date = document.getElementById('input-date').value;
     const oper = document.getElementById('input-operator').value;
@@ -136,10 +141,18 @@
     if(date) document.getElementById('display-date').innerText = date;
     if(oper) document.getElementById('display-operator').innerText = oper;
 
-    const container = document.getElementById('map-container');
     const list = document.getElementById('inventory-list');
-    container.innerHTML = '';
     list.innerHTML = '';
+
+    if (map) { map.remove(); }
+    map = L.map('map-container').setView([0, 0], 18);
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri'
+    }).addTo(map);
+
+
+    const utmZone = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
 
     const xCoords = trees.map(t => t.geo_x);
     const yCoords = trees.map(t => t.geo_y);
@@ -148,28 +161,29 @@
     const minY = Math.min(...yCoords);
     const maxY = Math.max(...yCoords);
 
-    const width = maxX - minX;
-    const height = maxY - minY;
-    const totalAcres = (width * height) / 4046.86; // 4046.86 sq meters in an acre
+    const totalAcres = ((maxX - minX) * (maxY - minY)) / 4046.86;
     document.getElementById('display-acres').innerText = totalAcres.toFixed(1);
 
     let stressedCount = 0;
-    let totalVari = 0;
+    const markers = [];
 
     trees.forEach(tree => {
         const isStressed = tree.vari < 0.05;
         if (isStressed) stressedCount++;
-        totalVari += tree.vari;
 
-        const dot = document.createElement('div');
-        dot.className = `map-dot absolute w-2 h-2 rounded-full border border-white shadow-sm ${isStressed ? 'bg-red-500' : 'bg-emerald-500'}`;
+        const [lng, lat] = proj4(utmZone, "WGS84", [tree.geo_x, tree.geo_y]);
 
-        const left = ((tree.geo_x - minX) / (maxX - minX)) * 90 + 5;
-        const top = ((tree.geo_y - minY) / (maxY - minY)) * 90 + 5;
+        const marker = L.circleMarker([lat, lng], {
+            radius: 2,
+            fillColor: isStressed ? "#ef4444" : "#10b981",
+            color: "#ffffff",
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 0.9
+        });
 
-        dot.style.left = `${left}%`;
-        dot.style.top = `${top}%`;
-        container.appendChild(dot);
+        marker.bindTooltip(`ID: #${tree.tree_id} | VARI: ${tree.vari.toFixed(3)}`);
+        markers.push(marker);
 
         if (isStressed) {
             const item = document.createElement('div');
@@ -185,6 +199,9 @@
         }
     });
 
+    const group = L.featureGroup(markers).addTo(map);
+    map.fitBounds(group.getBounds());
+
     const totalCount = trees.length;
     const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
 
@@ -196,11 +213,10 @@
     const affectedAcres = totalAcres * (stressedCount / totalCount);
     document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
     document.getElementById('stat-affected-percent').innerText = `${((stressedCount / totalCount) * 100).toFixed(1)}% of total area`;
-
     document.getElementById('stat-density').innerText = `${Math.round(totalCount / totalAcres)} / acre`;
 
     document.getElementById('upload-section').style.display = 'none';
-        }
+}
     </script>
 </body>
 </html>
