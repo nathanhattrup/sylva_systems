@@ -158,7 +158,10 @@
             return;
         }
 
-        // Setup Header Metadata
+
+        let currentlySelectedMarker = null;
+        const markerMap = {};
+
         const loc = document.getElementById('input-location').value;
         const date = document.getElementById('input-date').value;
         const oper = document.getElementById('input-operator').value;
@@ -182,6 +185,15 @@
             document.getElementById('coords-display').innerText = `LAT: ${lat} | LNG: ${lng}`;
         });
 
+        // Helper to reset visuals
+        const resetSelection = () => {
+            if (currentlySelectedMarker) {
+                currentlySelectedMarker.setRadius(4);
+                currentlySelectedMarker.closeTooltip();
+                currentlySelectedMarker = null;
+            }
+        };
+
         const utm11n = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
         const wgs84 = "WGS84";
 
@@ -199,8 +211,6 @@
         let moderateRiskCount = 0;
         const markers = L.featureGroup();
         const listFragment = document.createDocumentFragment();
-
-        const markerMap = {};
 
         trees.forEach(tree => {
             const isHighRisk = tree.vari < 0.015;
@@ -234,10 +244,13 @@
             `);
 
             marker.on('click', function() {
+                resetSelection();
+                currentlySelectedMarker = marker;
+                marker.setRadius(12);
+
                 const sidebarItem = document.getElementById(`inventory-item-${tree.tree_id}`);
                 if (sidebarItem) {
                     sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Visual feedback in sidebar
                     sidebarItem.classList.add('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500');
                     setTimeout(() => sidebarItem.classList.remove('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500'), 2000);
                 }
@@ -252,12 +265,13 @@
                 item.className = `p-4 hover:bg-gray-50 transition-all cursor-pointer flex justify-between items-center border-l-4 ${isHighRisk ? 'border-red-500' : 'border-orange-500'}`;
 
                 item.onclick = () => {
+                    resetSelection();
                     const m = markerMap[tree.tree_id];
+                    currentlySelectedMarker = m;
+
                     map.setView(m.getLatLng(), 20);
                     m.openTooltip();
-
                     m.setRadius(12);
-                    setTimeout(() => m.setRadius(4), 1000);
                 };
 
                 item.innerHTML = `
@@ -277,7 +291,6 @@
         markers.addTo(map);
         map.fitBounds(markers.getBounds());
 
-        // Legend and Stats UI
         const legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'bg-white/90 p-3 rounded shadow-md border border-gray-200 text-[10px] font-bold uppercase tracking-wider space-y-2');
@@ -309,7 +322,6 @@
         const rotation = -135 + (healthScore * 1.8);
         const gaugeFill = document.getElementById('health-gauge-fill');
         const badge = document.getElementById('risk-level-badge');
-
         gaugeFill.style.transform = `rotate(${rotation}deg)`;
 
         if (healthScore >= 80) {
