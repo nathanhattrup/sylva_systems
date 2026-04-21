@@ -118,16 +118,17 @@
     <script>
         const dataInput = document.getElementById('dataInput');
 
-        dataInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+dataInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
 
-            reader.onload = function(event) {
-                const data = JSON.parse(event.target.result);
-                processTrees(data.trees || data);
-            };
-            reader.readAsText(file);
-        });
+    reader.onload = function(event) {
+        const data = JSON.parse(event.target.result);
+        // Handle both the inventory format and the summary format if accidentally uploaded
+        processTrees(data.trees || data);
+    };
+    reader.readAsText(file);
+});
 
         let map;
 
@@ -145,12 +146,11 @@ function processTrees(trees) {
     list.innerHTML = '';
 
     if (map) { map.remove(); }
-    map = L.map('map-container').setView([0, 0], 18);
+    map = L.map('map-container');
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri'
     }).addTo(map);
-
 
     const utmZone = "+proj=utm +zone=11 +datum=WGS84 +units=m +no_defs";
 
@@ -171,9 +171,12 @@ function processTrees(trees) {
         const isStressed = tree.vari < 0.05;
         if (isStressed) stressedCount++;
 
-        const [lng, lat] = proj4(utmZone, "WGS84", [tree.geo_x, tree.geo_y]);
+        // CONVERSION: Map meters to GPS.
+        // If it's still desert, swap [tree.geo_x, tree.geo_y] to [tree.geo_y, tree.geo_x]
+        const coords = proj4(utmZone, "WGS84", [tree.geo_x, tree.geo_y]);
+        const latLng = [coords[1], coords[0]];
 
-        const marker = L.circleMarker([lat, lng], {
+        const marker = L.circleMarker(latLng, {
             radius: 2,
             fillColor: isStressed ? "#ef4444" : "#10b981",
             color: "#ffffff",
@@ -199,8 +202,10 @@ function processTrees(trees) {
         }
     });
 
-    const group = L.featureGroup(markers).addTo(map);
-    map.fitBounds(group.getBounds());
+    if (markers.length > 0) {
+        const group = L.featureGroup(markers).addTo(map);
+        map.fitBounds(group.getBounds());
+    }
 
     const totalCount = trees.length;
     const healthPercent = Math.round(((totalCount - stressedCount) / totalCount) * 100);
@@ -208,7 +213,7 @@ function processTrees(trees) {
     document.getElementById('stat-health-percent').innerText = healthPercent + '%';
     document.getElementById('stat-healthy-count').innerText = `${(totalCount - stressedCount).toLocaleString()} of ${totalCount.toLocaleString()}`;
     document.getElementById('stat-at-risk-percent').innerText = (100 - healthPercent) + '%';
-    document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 10)} clusters`;
+    document.getElementById('stat-at-risk-zones').innerText = `Across ${Math.ceil(stressedCount / 12)} clusters`;
 
     const affectedAcres = totalAcres * (stressedCount / totalCount);
     document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
