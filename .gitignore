@@ -7,8 +7,11 @@ algorithm/outputs/sylva_analysis/composite_annotated.jpg
 algorithm/outputs/sylva_analysis/composite_raw.jpg
 algorithm/ortho.tif
 algorithm/ortho_cropped.tif
+algorithm/steves_farm.tif
+algorithm/steves_farm_clipped.tif
 .cache/
 __pycache__/
 *.pyc
 *.egg-info/
 *.so
+Sylva Systems ACC InVenture Slideshow.pptx

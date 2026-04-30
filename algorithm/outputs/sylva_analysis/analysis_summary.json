@@ -1,34 +1,34 @@
 {
-  "source_file": "ortho_cropped.tif",
-  "total_trees": 4241,
+  "source_file": "steves_farm_clipped.tif",
+  "total_trees": 785,
   "detection_confidence": {
-    "mean": 0.5028,
-    "median": 0.4911,
-    "min": 0.4001,
-    "max": 0.8165
+    "mean": 0.4541,
+    "median": 0.4413,
+    "min": 0.4,
+    "max": 0.7095
   },
   "crown_diameter_px": {
-    "mean": 30.4,
-    "std": 6.6,
-    "min": 15.5,
-    "max": 57.5
+    "mean": 30.8,
+    "std": 5.1,
+    "min": 16.0,
+    "max": 78.0
   },
   "vegetation_indices": {
-    "exg_mean": 82.58,
-    "exg_std": 19.82,
-    "vari_mean": 0.034,
-    "vari_std": 0.0324
+    "exg_mean": 38.6,
+    "exg_std": 16.16,
+    "vari_mean": 0.3297,
+    "vari_std": 0.1137
   },
   "color_stats": {
-    "mean_r": 124.8,
-    "mean_g": 131.5,
-    "mean_b": 55.6
+    "mean_r": 37.3,
+    "mean_g": 55.9,
+    "mean_b": 35.9
   },
-  "gsd_cm_per_pixel": 5.36,
+  "gsd_cm_per_pixel": 1.0,
   "crown_diameter_m": {
-    "mean": 1.632,
-    "std": 0.354,
-    "min": 0.831,
-    "max": 3.081
+    "mean": 0.308,
+    "std": 0.051,
+    "min": 0.16,
+    "max": 0.78
   }
 }

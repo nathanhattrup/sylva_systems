@@ -1,0 +1,34 @@
+{
+  "source_file": "ortho_cropped.tif",
+  "total_trees": 4241,
+  "detection_confidence": {
+    "mean": 0.5028,
+    "median": 0.4911,
+    "min": 0.4001,
+    "max": 0.8165
+  },
+  "crown_diameter_px": {
+    "mean": 30.4,
+    "std": 6.6,
+    "min": 15.5,
+    "max": 57.5
+  },
+  "vegetation_indices": {
+    "exg_mean": 82.58,
+    "exg_std": 19.82,
+    "vari_mean": 0.034,
+    "vari_std": 0.0324
+  },
+  "color_stats": {
+    "mean_r": 124.8,
+    "mean_g": 131.5,
+    "mean_b": 55.6
+  },
+  "gsd_cm_per_pixel": 5.36,
+  "crown_diameter_m": {
+    "mean": 1.632,
+    "std": 0.354,
+    "min": 0.831,
+    "max": 3.081
+  }
+}

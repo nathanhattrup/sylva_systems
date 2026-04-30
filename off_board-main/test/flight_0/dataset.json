@@ -1,0 +1,26 @@
+{
+    "dataset_name": "flight_0",
+    "crs": "EPSG:4326",
+    "alt_reference": "AGL",
+    "camera_model": {
+        "image_width": 4656,
+        "image_height": 3496,
+        "fx": 3200.0,
+        "fy": 3200.0,
+        "cx": 2328.0,
+        "cy": 1748.0
+    },
+    "frames": [
+        {
+            "id": 0,
+            "timestamp": 0.0,
+            "image_path": "flight_0/images/image_0000.png",
+            "lat": 35.781669,
+            "lon": -78.66619,
+            "alt_m": 0.0,
+            "roll_deg": 0.0,
+            "pitch_deg": -90.0,
+            "yaw_deg": 0.0
+        }
+    ]
+}
