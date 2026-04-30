@@ -231,8 +231,7 @@
             if (isHighRisk) plotColor = "#ef4444";
             if (isModerateRisk) plotColor = "#f59e0b";
 
-            // FIXED: Using utmProjection instead of the old utm11n
-            const p = proj4(utmProjection, wgs84, [tree.geo_x, tree.geo_y]);
+            const p = proj4(utmProjection, wgs84, [tree.geo_y, tree.geo_x]);
             const marker = L.circleMarker([p[1], p[0]], {
                 radius: 4,
                 fillColor: plotColor,
