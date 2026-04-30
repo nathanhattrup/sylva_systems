@@ -168,14 +168,12 @@
     function processTrees(trees) {
         if (!trees || trees.length === 0) return;
 
-        // 1. Setup Projections for Raleigh, NC (UTM Zone 18N)
-        const utm18n = "+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs";
+        const utm18n = "+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs";
         const wgs84 = "WGS84";
 
         let currentlySelectedMarker = null;
         const markerMap = {};
 
-        // 2. Metadata Handling
         const loc = document.getElementById('input-location').value;
         const date = document.getElementById('input-date').value;
         const oper = document.getElementById('input-operator').value;
