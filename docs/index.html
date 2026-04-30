@@ -18,6 +18,7 @@
 </head>
 <body class="bg-[#fdfcf8] text-[#2c332e] min-h-screen">
 
+    <!-- HEADER SECTION -->
     <header class="bg-[#1b2e22] text-white px-8 py-6 flex justify-between items-center shadow-md">
         <div class="flex items-center gap-4">
             <img src="assets/SlyvaSystemsNewLogo.png" alt="Sylva Systems Logo" class="w-12 h-12 object-contain">
@@ -52,6 +53,7 @@
         </div>
     </header>
 
+    <!-- METADATA BAR -->
     <div class="bg-[#253a2b] text-[#8da392] px-8 py-3 flex flex-wrap gap-8 text-[11px] border-b border-white/10 shadow-sm">
         <div>LOCATION: <span class="text-white font-bold uppercase ml-1" id="display-location">Pending</span></div>
         <div>ACRES SCANNED: <span class="text-white font-bold uppercase ml-1" id="display-acres">Pending</span></div>
@@ -60,6 +62,7 @@
     </div>
 
     <main class="max-w-7xl mx-auto p-6 md:p-10">
+        <!-- STATS CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-10">
             <div class="bg-white p-5 border border-[#e2e2da] border-t-4 border-t-emerald-600 shadow-sm">
                 <div class="text-[10px] font-bold opacity-50 uppercase mb-2">Healthy Trees</div>
@@ -84,6 +87,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- MAP CONTAINER -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-white border border-[#e2e2da] rounded shadow-sm overflow-hidden relative">
                     <div class="px-6 py-4 border-b border-[#e2e2da] bg-gray-50/50 flex justify-between items-center">
@@ -96,12 +100,13 @@
                 </div>
             </div>
 
+            <!-- SIDEBAR -->
             <div class="space-y-6">
                 <div id="upload-section" class="bg-white border border-[#e2e2da] p-6 rounded shadow-sm space-y-4">
                     <h3 class="font-bold text-[#1b2e22] text-sm uppercase tracking-wider">Report Metadata</h3>
                     <div class="space-y-2">
                         <input type="text" id="input-location" placeholder="Farm Name" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
-                        <input type="text" id="input-date" placeholder="Scan Date (e.g. April 19, 2026)" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
+                        <input type="text" id="input-date" placeholder="Scan Date" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
                         <input type="text" id="input-operator" placeholder="Operator Name" class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-emerald-600">
                     </div>
                     <div class="pt-2 border-t border-gray-100">
@@ -132,6 +137,7 @@
 
     <script>
     const dataInput = document.getElementById('dataInput');
+    let map;
 
     dataInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -148,8 +154,6 @@
         reader.readAsText(file);
     });
 
-    let map;
-
     function requestFollowUp() {
         const farm = document.getElementById('display-location').innerText;
         const report = document.getElementById('display-report-num').innerText;
@@ -162,14 +166,16 @@
     }
 
     function processTrees(trees) {
-        if (!trees || trees.length === 0) {
-            alert("No tree data found in this file.");
-            return;
-        }
+        if (!trees || trees.length === 0) return;
+
+        // 1. Setup Projections for Raleigh, NC (UTM Zone 18N)
+        const utm18n = "+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs";
+        const wgs84 = "WGS84";
 
         let currentlySelectedMarker = null;
         const markerMap = {};
 
+        // 2. Metadata Handling
         const loc = document.getElementById('input-location').value;
         const date = document.getElementById('input-date').value;
         const oper = document.getElementById('input-operator').value;
@@ -201,10 +207,7 @@
             }
         };
 
-        // Corrected for Raleigh, NC (UTM Zone 18N)
-        const utmProjection = "+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs";
-        const wgs84 = "WGS84";
-
+        // 3. Coordinate Calculations
         const xCoords = trees.map(t => t.geo_x);
         const yCoords = trees.map(t => t.geo_y);
         const minX = Math.min(...xCoords);
@@ -227,40 +230,34 @@
             if (isHighRisk) highRiskCount++;
             if (isModerateRisk) moderateRiskCount++;
 
-            let plotColor = "#10b981";
-            if (isHighRisk) plotColor = "#ef4444";
-            if (isModerateRisk) plotColor = "#f59e0b";
+            let plotColor = "#10b981"; // Healthy Green
+            if (isHighRisk) plotColor = "#ef4444"; // Red
+            if (isModerateRisk) plotColor = "#f59e0b"; // Orange
 
-            const p = proj4(utmProjection, wgs84, [tree.geo_y, tree.geo_x]);
+            // CONVERSION: Proj4 expects [Easting, Northing]
+            const p = proj4(utm18n, wgs84, [tree.geo_x, tree.geo_y]);
+
+            // LEAFLET: [Latitude (y), Longitude (x)]
             const marker = L.circleMarker([p[1], p[0]], {
                 radius: 4,
                 fillColor: plotColor,
                 color: "#ffffff",
                 weight: 1,
                 opacity: 1,
-                fillOpacity: 0.9,
-                treeId: tree.tree_id
+                fillOpacity: 0.9
             });
 
-            marker.bindTooltip(`
-                <div class="font-sans p-1">
-                    <div class="font-bold text-emerald-800">Tree #${tree.tree_id}</div>
-                    <div class="mt-1 border-t border-gray-100 pt-1 font-mono text-xs">
-                        VARI: <span style="color:${plotColor}">${tree.vari.toFixed(3)}</span>
-                    </div>
-                </div>
-            `);
+            marker.bindTooltip(`Tree #${tree.tree_id} | VARI: ${tree.vari.toFixed(3)}`);
 
             marker.on('click', function() {
                 resetSelection();
                 currentlySelectedMarker = marker;
                 marker.setRadius(12);
-
                 const sidebarItem = document.getElementById(`inventory-item-${tree.tree_id}`);
                 if (sidebarItem) {
                     sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    sidebarItem.classList.add('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500');
-                    setTimeout(() => sidebarItem.classList.remove('bg-emerald-50', 'ring-2', 'ring-inset', 'ring-emerald-500'), 2000);
+                    sidebarItem.classList.add('bg-emerald-50', 'ring-2', 'ring-emerald-500');
+                    setTimeout(() => sidebarItem.classList.remove('bg-emerald-50', 'ring-2', 'ring-emerald-500'), 2000);
                 }
             });
 
@@ -271,16 +268,13 @@
                 const item = document.createElement('div');
                 item.id = `inventory-item-${tree.tree_id}`;
                 item.className = `p-4 hover:bg-gray-50 transition-all cursor-pointer flex justify-between items-center border-l-4 ${isHighRisk ? 'border-red-500' : 'border-orange-500'}`;
-
                 item.onclick = () => {
                     resetSelection();
-                    const m = markerMap[tree.tree_id];
-                    currentlySelectedMarker = m;
-                    map.setView(m.getLatLng(), 20);
-                    m.openTooltip();
-                    m.setRadius(12);
+                    currentlySelectedMarker = marker;
+                    map.setView(marker.getLatLng(), 20);
+                    marker.openTooltip();
+                    marker.setRadius(12);
                 };
-
                 item.innerHTML = `
                     <div>
                         <div class="text-xs font-bold text-gray-900">ID: #${tree.tree_id}</div>
@@ -298,6 +292,7 @@
         markers.addTo(map);
         map.fitBounds(markers.getBounds());
 
+        // 4. Update Dashboard
         const totalCount = trees.length;
         const totalAtRisk = highRiskCount + moderateRiskCount;
         const healthPercent = Math.round(((totalCount - totalAtRisk) / totalCount) * 100);
@@ -306,13 +301,12 @@
         document.getElementById('stat-healthy-count').innerText = `${(totalCount - totalAtRisk).toLocaleString()} of ${totalCount.toLocaleString()}`;
         document.getElementById('stat-at-risk-percent').innerText = (100 - healthPercent) + '%';
         document.getElementById('stat-at-risk-zones').innerText = `${highRiskCount} High / ${moderateRiskCount} Moderate`;
-
-        const affectedAcres = totalAcres * (totalAtRisk / totalCount);
-        document.getElementById('stat-affected-acreage').innerText = affectedAcres.toFixed(1);
-        document.getElementById('stat-affected-percent').innerText = `${((totalAtRisk / totalCount) * 100).toFixed(1)}% of total area`;
+        document.getElementById('stat-affected-acreage').innerText = (totalAcres * (totalAtRisk / totalCount)).toFixed(1);
+        document.getElementById('stat-affected-percent').innerText = `${((totalAtRisk / totalCount) * 100).toFixed(1)}% of total`;
         document.getElementById('stat-density').innerText = `${Math.round(totalCount / totalAcres)} / acre`;
-
         document.getElementById('stat-health-score').innerText = healthPercent;
+
+        // Gauge Logic
         const rotation = -135 + (healthPercent * 1.8);
         const gaugeFill = document.getElementById('health-gauge-fill');
         const badge = document.getElementById('risk-level-badge');
@@ -340,6 +334,6 @@
         const now = new Date();
         document.getElementById('display-report-num').innerText = `SYL-${now.toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
     }
-</script>
+    </script>
 </body>
 </html>
